@@ -71,13 +71,46 @@ exports.getAllSauces = (req, res, next) => {
     );
 };
 
-// exports.likeSauce = (req, res, next) => {
-//     const sauceObject = req.file ?
-//         {
-//             ...JSON.parse(req.body.sauce),
-//             imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
-//         } : { ...req.body };
-//     Sauce.updateOne({ _id: req.params.id }, { ...sauceObject, _id: req.params.id })
-//         .then(() => res.status(200).json({ message: 'Objet modifié !'}))
-//         .catch(error => res.status(400).json({ error }));
-// };
+exports.likeSauce = (req, res, next) => {
+    const { userId, like } = req.body
+    Sauce.findOne({ _id: req.params.id })
+    .then(sauce => {
+        let newUsersLiked = sauce.usersLiked
+        let newUsersDisliked = sauce.usersDisliked
+        if (like === 1) {
+            if (sauce.usersLiked.includes(userId)) {
+                newUsersLiked.splice(newUsersLiked.indexOf(userId), 1)
+            } else {
+                newUsersLiked.push(userId)
+            }
+        }
+        if (like === -1) {
+            if (sauce.usersDisliked.includes(userId)) {
+                newUsersDisliked.splice(newUsersDisliked.indexOf(userId), 1)
+            } else {
+                newUsersDisliked.push(userId)
+            }
+        }
+        if (like === 0) {
+            if (sauce.usersLiked.includes(userId)) {
+                newUsersLiked.splice(newUsersLiked.indexOf(userId), 1)
+            }
+            if (sauce.usersDisliked.includes(userId)) {
+                newUsersDisliked.splice(newUsersDisliked.indexOf(userId), 1)
+            } 
+        }
+        Sauce.updateOne(
+            { _id: req.params.id }, 
+            { 
+                likes: newUsersLiked.length,
+                dislikes: newUsersDisliked.length,
+                usersLiked: newUsersLiked,
+                usersDisliked: newUsersDisliked 
+            }
+        )
+        .then(() => res.status(200).json({ message: 'Objet modifié !'}))
+        .catch(error => res.status(400).json({ error }));
+        
+
+    })
+};
