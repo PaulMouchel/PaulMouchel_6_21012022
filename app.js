@@ -1,11 +1,10 @@
 const express = require('express');
-// const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
-const Thing = require('./models/thing');
+const Sauce = require('./models/sauce');
+require('dotenv').config()
 
 const app = express();
-
-mongoose.connect('mongodb+srv://admin:6rnQA1xHoW7ezagB@cluster0.uiy8p.mongodb.net/myFirstDatabase?retryWrites=true&w=majority',
+mongoose.connect(`mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.jffga.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`,
   { useNewUrlParser: true,
     useUnifiedTopology: true })
   .then(() => console.log('Connexion à MongoDB réussie !'))
@@ -23,10 +22,10 @@ app.use((req, res, next) => {
 //   app.use(bodyParser.json());
   app.use(express.json())
 
-  const stuffRoutes = require('./routes/stuff');
+  const stuffRoutes = require('./routes/sauces');
   const userRoutes = require('./routes/user');
   const path = require('path');
-  app.use('/api/stuff', stuffRoutes); 
+  app.use('/api/sauces', stuffRoutes); 
   app.use('/api/auth', userRoutes);
   app.use('/images', express.static(path.join(__dirname, 'images')));
 
